@@ -25,7 +25,7 @@ class WorldObject {
         this.box = options.box; // {w, h}
         this.isDestroyed = false;
 
-        this.gravityScale = 0;
+        this.gravityScale = 1;
 
         if (!options.addToWorld) {
             WorldObject.objects.push(this);

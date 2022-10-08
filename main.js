@@ -17,11 +17,11 @@ function update() {
             color: 'red',
             gravityScale: .5
         }).update = function() {
-            this.pos.x = Math.sin(ticks * .1) * 20;
+            // this.pos.x = Math.sin(ticks * .1) * 20;
         };
     }
-    
-    Bug.spawnBug()
+
+    // Bug.spawnBug()
 
     WorldObject.update();
 
