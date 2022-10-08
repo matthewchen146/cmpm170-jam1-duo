@@ -4,11 +4,11 @@ let canvasHeight = 100;
 let cameraPos = vec(0,0);
 
 function getCanvasPos(pos) {
-    return vec(pos).sub(this.cameraPos.x - canvasWidth * .5, this.cameraPos.y - canvasHeight * .5);
+    return vec(pos).sub(cameraPos.x - canvasWidth * .5, cameraPos.y - canvasHeight * .5);
 }
 
 function getWorldPos(pos) {
-    return vec(pos).add(this.cameraPos.x - canvasWidth * .5, this.cameraPos.y - canvasHeight * .5);
+    return vec(pos).add(cameraPos.x - canvasWidth * .5, cameraPos.y - canvasHeight * .5);
 }
 
 
@@ -18,6 +18,8 @@ class WorldObject {
     constructor(options = {}) {
         this.pos = options.pos || vec(0,0);
         this.char = options.char;
+        this.charOptions = options.charOptions;
+        this.box = options.box; // {w, h}
         this.isDestroyed = false;
 
         if (!options.addToWorld) {
@@ -41,12 +43,23 @@ class WorldObject {
         }
     }
 
+    static draw() {
+        for (let object of WorldObject.objects) {
+            object.draw(getCanvasPos(object.pos));
+        }
+    }
+
     update() {
 
     }
 
-    draw() {
-
+    draw(canvasPos) {
+        if (this.char) {
+            char(this.char, canvasPos, this.charOptions);
+        }
+        if (this.box) {
+            box(canvasPos, this.box);
+        }
     }
 
     destroy() {
