@@ -4,11 +4,11 @@ let canvasHeight = 100;
 let cameraPos = vec(0,0);
 
 function getCanvasPos(pos) {
-
+    return vec(pos).sub(this.cameraPos.x - canvasWidth * .5, this.cameraPos.y - canvasHeight * .5);
 }
 
 function getWorldPos(pos) {
-
+    return vec(pos).add(this.cameraPos.x - canvasWidth * .5, this.cameraPos.y - canvasHeight * .5);
 }
 
 
