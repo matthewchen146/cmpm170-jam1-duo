@@ -17,6 +17,7 @@ function update() {
         };
     }
     
+    Bug.spawnBug()
 
     WorldObject.update();
 

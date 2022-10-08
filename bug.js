@@ -14,6 +14,9 @@ class Bug extends WorldObject{
         }
     }
 
+    spawnBug(){
+        this.bugs.push(this.bug);
+    }
 
     update(){
         
