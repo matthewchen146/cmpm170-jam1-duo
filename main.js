@@ -20,7 +20,8 @@ function update() {
             this.pos.x = Math.sin(ticks * .1) * 20;
         };
     }
-
+    
+    Bug.spawnBug()
 
     WorldObject.update();
 
