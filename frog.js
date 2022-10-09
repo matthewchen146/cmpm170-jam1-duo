@@ -78,7 +78,7 @@ class Frog extends WorldObject {
                         }
                     }
                     let isCollidingBug = false;
-                    if (closestBug && closestDistance < this.targetMargin) {
+                    if (closestBug && !closestBug.isDestroyed && closestDistance < this.targetMargin) {
                         let diff = vec(this.tongueTipPos).sub(closestBug.pos);
                         this.tongueTipPos.sub(diff.normalize().mul(this.targetSuction));
                         
@@ -88,6 +88,8 @@ class Frog extends WorldObject {
 
                             // attached to bug
                             this.caughtBug = closestBug;
+
+                            // console.log(this.caughtBug.isDestroyed)
                             // addScore(10, getCanvasPos(closestBug.pos));
                         }
                     }
@@ -121,10 +123,15 @@ class Frog extends WorldObject {
             case Frog.states.SWINGING:
                 if (input.isPressed) {
 
-                    let radius = this.tongueLength;
+                    // if (this.caughtBug) {
+                    //     this.tongueTipPos.sub(vec(this.pos).sub(this.caughtBug.pos).normalize());
+                    //     this.relSwingPos = vec(this.pos).sub(this.tongueTipPos);
+                    // }
 
                     // calculate pendulum acceleration
                     let diff = vec(this.pos).sub(this.tongueTipPos);
+                    this.tongueLength = diff.length;
+                    let radius = this.tongueLength;
                     let pendulumAngle = Math.atan(diff.x / diff.y);
                     let angularForce = -gravity.y * (Math.sin(pendulumAngle) / radius) * this.gravityScale;
                     this.angularVelocity += angularForce;
@@ -144,7 +151,7 @@ class Frog extends WorldObject {
                     let magnitude = this.angularVelocity * this.tongueLength;
                     tangent.mul(magnitude);
                     tangent.sub(this.rotatedPos.normalize().mul(this.tongueRetractSpeed));
-                    this.tongueLength = diff.length;
+                    
 
                     // apply velocity
                     this.velocity.set(tangent);
