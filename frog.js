@@ -24,12 +24,12 @@ class Frog extends WorldObject {
                 if (input.isPressed) {
                     this.state = Frog.states.FIRING;
                     this.isTongueTipVisible = true;
+                    this.tongueTipPos.set(this.pos);
                 }
                 break;
             case Frog.states.FIRING:
-                this.isTongueTipVisible = true;
                 if (input.isPressed) {
-
+                    this.tongueTipPos.add(vec(1,-1).normalize().mul(3));
                 }
                 break;
             case Frog.states.SWINGING:
@@ -48,7 +48,11 @@ class Frog extends WorldObject {
     draw(canvasPos) {
 
         if (this.isTongueTipVisible) {
-            box(getCanvasPos(this.tongueTipPos), vec(3,3));
+            let tongueCanvasPos = getCanvasPos(this.tongueTipPos);
+            color('light_red');
+            box(tongueCanvasPos, vec(3,3));
+            line(canvasPos, tongueCanvasPos, 2);
+            color('black');
         }
 
         super.draw(canvasPos);

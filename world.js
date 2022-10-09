@@ -15,6 +15,7 @@ function getWorldPos(pos) {
 
 class WorldObject {
     static objects = [];
+    static drawLayers = [];
 
     constructor(options = {}) {
         this.pos = options.pos || vec(0,0);
@@ -26,6 +27,10 @@ class WorldObject {
         this.isDestroyed = false;
 
         this.gravityScale = options.gravityScale !== undefined ? options.gravityScale : 1;
+
+        if (options.drawLayer) {
+            
+        }
 
         if (!options.addToWorld) {
             WorldObject.objects.push(this);

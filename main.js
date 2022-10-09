@@ -24,7 +24,7 @@ function update() {
 
         Ceiling.spawnInitialCeiling();
 
-        player = new Frog({box: vec(6,6), color: 'green'});
+        player = new Frog({box: vec(6,6), color: 'green', gravityScale: .5});
     }
 
     // Bug.spawnBug()
