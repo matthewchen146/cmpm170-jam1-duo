@@ -15,7 +15,7 @@ function getWorldPos(pos) {
 
 class WorldObject {
     static objects = [];
-    static drawLayers = [];
+    static drawLayers = [[],[],[],[]];
 
     constructor(options = {}) {
         this.pos = options.pos || vec(0,0);
@@ -28,11 +28,12 @@ class WorldObject {
 
         this.gravityScale = options.gravityScale !== undefined ? options.gravityScale : 1;
 
-        if (options.drawLayer) {
-            
+        if (!options.disableDrawing) {
+            this.drawLayer = options.drawLayer !== undefined && options.drawLayer < 4 ? options.drawLayer : 0;
+            WorldObject.drawLayers[this.drawLayer].push(this);
         }
 
-        if (!options.addToWorld) {
+        if (!options.disableUpdating) {
             WorldObject.objects.push(this);
         }
     }
@@ -49,18 +50,26 @@ class WorldObject {
                 i -= 1;
             } else {
 
-                object.velocity.add(vec(gravity).mul(object.gravityScale));
-                object.pos.add(object.velocity);
+                object.physicsUpdate();
+                
 
-                object.update();
+                
             }
         }
     }
 
     static draw() {
-        for (let object of WorldObject.objects) {
-            object.draw(getCanvasPos(object.pos));
+        for (let layer of WorldObject.drawLayers) {
+            for (let object of layer) {
+                object.draw(getCanvasPos(object.pos));
+            }
         }
+    }
+
+    physicsUpdate() {
+        this.velocity.add(vec(gravity).mul(this.gravityScale));
+        this.pos.add(this.velocity);
+        this.update();
     }
 
     update() {

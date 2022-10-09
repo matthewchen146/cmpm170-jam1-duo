@@ -12,19 +12,16 @@ let player;
 function update() {
     if (!ticks) {
   
+        // initialize world
         WorldObject.reset();
         cameraPos = vec(0,0);
-        // new WorldObject({
-        //     box: vec(3,3),
-        //     color: 'red',
-        //     gravityScale: .5
-        // }).update = function() {
-        //     // this.pos.x = Math.sin(ticks * .1) * 20;
-        // };
 
+        // initialize ceiling
+        Ceiling.reset();
         Ceiling.spawnInitialCeiling();
 
-        player = new Frog({box: vec(6,6), color: 'green', gravityScale: .5});
+        // create player
+        player = new Frog({box: vec(6,6), color: 'green', gravityScale: 1, disableUpdating: true});
     }
 
     // Bug.spawnBug()
@@ -32,6 +29,15 @@ function update() {
     WorldObject.update();
 
 
+    cameraPos.x = player.pos.x;
+
+    // draw ceiling first
+    for (let ceiling of Ceiling.objects) {
+        ceiling.draw(getCanvasPos(ceiling.pos));
+    }
+
+    // update player
+    player.physicsUpdate();
 
     WorldObject.draw();
 }
