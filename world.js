@@ -63,8 +63,14 @@ class WorldObject {
 
     static draw() {
         for (let layer of WorldObject.drawLayers) {
-            for (let object of layer) {
-                object.draw(getCanvasPos(object.pos));
+            for (let i = 0; i < layer.length; i++) {
+                let object = layer[i];
+                if (object.isDestroyed) {
+                    layer.splice(i, 1);
+                    i -= 1;
+                } else {
+                    object.draw(getCanvasPos(object.pos));
+                }
             }
         }
     }

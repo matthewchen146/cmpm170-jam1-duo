@@ -20,6 +20,7 @@ function update() {
         Ceiling.reset();
         Ceiling.spawnInitialCeiling();
 
+        // initialize bugs
         Bug.reset();
 
         // create player
@@ -31,7 +32,9 @@ function update() {
         return;
     }
 
-    // Bug.spawnBug()
+    if (player.furthestX + canvasWidth > Bug.nextSpawnX) {
+        Bug.spawnBug();
+    }
 
     WorldObject.update();
 
@@ -51,7 +54,7 @@ function update() {
     }
 
     // score = Ceiling.objects.length;
-
+    // console.log(Bug.objects.length);
     // console.log(Ceiling.objects.length);
 
     // update player
