@@ -22,6 +22,8 @@ function update() {
         //     // this.pos.x = Math.sin(ticks * .1) * 20;
         // };
 
+        Ceiling.spawnInitialCeiling();
+
         player = new Frog({box: vec(6,6), color: 'green'});
     }
 
