@@ -3,20 +3,20 @@
 
 class Bug extends WorldObject{
 
-    static bugs = [];
-
     constructor(options = {}){
         super(options)
         this.spawnlineY = 20;
         this.lastSpawn = -1;
-        this.bug = {
-            x:Math.random()*(canvas.width-30)+15,
-            y:this.spawnlineY
-        }
     }
 
     static spawnBug(){
-        this.bugs.push(this.bug);
+        let bugs = new Bug({
+            color: 'red',
+            box: vec(6,6),
+            pos: vec(Math.random()*(canvas.width-30)+15,rnd(20,50)),
+            gravityScale: 0
+
+        })
     }
 
     update(){
