@@ -20,8 +20,15 @@ function update() {
         Ceiling.reset();
         Ceiling.spawnInitialCeiling();
 
+        Bug.reset();
+
         // create player
         player = new Frog({box: vec(6,6), color: 'green', gravityScale: 1, disableUpdating: true});
+    }
+
+    if (!isCutsceneFinished) {
+        drawCutscene();
+        return;
     }
 
     // Bug.spawnBug()

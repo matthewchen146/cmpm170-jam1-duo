@@ -65,10 +65,11 @@ class Frog extends WorldObject {
                         this.swingAngle = 0;
                         // calculate angular velocity = velocity / radius
                         let tangent = vec(this.relSwingPos.y, -this.relSwingPos.x).normalize();
-                        let diff = vec(this.velocity).normalize().sub(tangent);
-                        tangent.x *= 1 - diff.x;
-                        tangent.y *= 1 - diff.y;
-                        
+                        // let diff = vec(this.velocity).normalize().sub(tangent);
+                        // tangent.x *= 1 - diff.x;
+                        // tangent.y *= 1 - diff.y;
+                        tangent.mul(this.velocity.length);
+
                         this.tongueLength = vec(this.tongueTipPos).sub(this.pos).length; 
                         this.angularVelocity = tangent.length / this.tongueLength;
                     }
