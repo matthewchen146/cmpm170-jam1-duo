@@ -102,6 +102,7 @@ class Frog extends WorldObject {
                         this.relSwingPos.y * Math.cos(this.swingAngle) + this.relSwingPos.x * Math.sin(this.swingAngle)
                     ));
 
+                    
 
                     // calculate tangent for velocity
                     let tangent = vec(this.rotatedPos.y, -this.rotatedPos.x).normalize();
