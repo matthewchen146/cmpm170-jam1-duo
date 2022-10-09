@@ -14,27 +14,37 @@ class Frog extends WorldObject {
         super(options);
         this.state = Frog.states.FALLING
 
+        this.targetMargin = 10;
+        this.targetSuction = 3;
+        this.tongueSpeed = 5;
+        this.tongueRetractSpeed = .1;
+
         this.tongueTipPos = vec(this.pos);
         this.isTongueTipVisible = false;
 
-        this.reloadTimestamp = 0;
-        this.reloadDuration = 100;
-        this.reloadTongueTipPos = vec(0,0);
+        // this.reloadTimestamp = 0;
+        // this.reloadDuration = 100;
+        // this.reloadTongueTipPos = vec(0,0);
         this.relSwingPos = vec(0,0);
         this.swingAngle = 0;
         this.angularVelocity = 0;
         this.rotatedPos = vec(0,0);
         this.tongueLength = 0;
+        this.furthestX = 0;
+
+        this.caughtBug;
     }
 
     update() {
         
+        // kill frog if too low
         if (this.pos.y > 50) {
             end();
             return;
         }
 
         // create frog collider
+        // kill frog if hit ceiling
         color('transparent');
         let bodyCollision = box(getCanvasPos(this.pos), vec(6,6));
         color('black');
@@ -50,15 +60,41 @@ class Frog extends WorldObject {
                 if (input.isPressed) {
 
                     // set tongue tip position
-                    this.tongueTipPos.add(vec(1,-1).normalize().mul(5));
+                    this.tongueTipPos.add(vec(1,-1).normalize().mul(this.tongueSpeed));
 
                     // create tongue tip collider
                     color('transparent');
                     let collision = box(getCanvasPos(this.tongueTipPos), vec(3,3));
                     color('black');
 
+                    // check for bugs too
+                    let closestBug;
+                    let closestDistance = 0;
+                    for (let bug of Bug.objects) {
+                        let distance = bug.pos.distanceTo(this.tongueTipPos);
+                        if (!closestBug || distance < closestDistance) {
+                            closestBug = bug;
+                            closestDistance = distance;
+                        }
+                    }
+                    let isCollidingBug = false;
+                    if (closestBug && closestDistance < this.targetMargin) {
+                        let diff = vec(this.tongueTipPos).sub(closestBug.pos);
+                        this.tongueTipPos.sub(diff.normalize().mul(this.targetSuction));
+                        
+                        if (closestBug.pos.distanceTo(this.tongueTipPos) < 6) {
+                            isCollidingBug = true;
+                            this.tongueTipPos.set(closestBug.pos);
+
+                            // attached to bug
+                            this.caughtBug = closestBug;
+                            // addScore(10, getCanvasPos(closestBug.pos));
+                        }
+                    }
+                    
+
                     // check if tongue tip colliding ceiling
-                    if (collision.isColliding.rect.blue) {
+                    if (collision.isColliding.rect.blue || isCollidingBug) {
                         this.state = Frog.states.SWINGING;
 
                         this.relSwingPos = vec(this.pos).sub(this.tongueTipPos);
@@ -101,13 +137,14 @@ class Frog extends WorldObject {
                         this.relSwingPos.x * Math.cos(this.swingAngle) - this.relSwingPos.y * Math.sin(this.swingAngle),
                         this.relSwingPos.y * Math.cos(this.swingAngle) + this.relSwingPos.x * Math.sin(this.swingAngle)
                     ));
-
                     
 
                     // calculate tangent for velocity
                     let tangent = vec(this.rotatedPos.y, -this.rotatedPos.x).normalize();
                     let magnitude = this.angularVelocity * this.tongueLength;
                     tangent.mul(magnitude);
+                    tangent.sub(this.rotatedPos.normalize().mul(this.tongueRetractSpeed));
+                    this.tongueLength = diff.length;
 
                     // apply velocity
                     this.velocity.set(tangent);
@@ -118,22 +155,17 @@ class Frog extends WorldObject {
                     let magnitude = this.angularVelocity * this.tongueLength;
                     tangent.mul(magnitude);
                     this.velocity.set(tangent);
+
+                    // eat bug if bug
+                    if (this.caughtBug) {
+                        addScore(this.caughtBug.score, getCanvasPos(this.pos));
+                        this.caughtBug.destroy();
+                        this.caughtBug = undefined;
+                    }
                     
                     this.state = Frog.states.FIRING;
 
                 }
-                break;
-            case Frog.states.RELOADING:
-                this.reloadProgress = (Date.now() - this.reloadTimestamp) / this.reloadDuration;
-                if (this.reloadProgress > 1) {
-                    this.reloadProgress = 1;
-                    this.state = Frog.states.FALLING;
-
-                    this.isTongueTipVisible = false;
-                    // register bug if bug
-                }
-                this.tongueTipPos.set(vec(this.pos).add(vec(this.reloadTongueTipPos).mul(1 - this.reloadProgress)));
-                
                 break;
             case Frog.states.FALLING:
                 if (input.isPressed) {
@@ -147,6 +179,10 @@ class Frog extends WorldObject {
         }
 
 
+        // set stats
+        if (this.pos.x > this.furthestX) {
+            this.furthestX = this.pos.x;
+        }
     }
 
     draw(canvasPos) {
