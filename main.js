@@ -28,16 +28,28 @@ function update() {
 
     WorldObject.update();
 
-
     cameraPos.x = player.pos.x;
+    cameraPos.y = player.pos.y * .5;
 
     // draw ceiling first
-    for (let ceiling of Ceiling.objects) {
-        ceiling.draw(getCanvasPos(ceiling.pos));
+    for (let i = 0; i < Ceiling.objects.length; i++) {
+        let ceiling = Ceiling.objects[i];
+        if (ceiling.isDestroyed) {
+            Ceiling.objects.splice(i, 1);
+            i -= 1;
+        } else {
+            ceiling.update();
+            ceiling.draw(getCanvasPos(ceiling.pos));
+        }
     }
+
+    // score = Ceiling.objects.length;
+
+    // console.log(Ceiling.objects.length);
 
     // update player
     player.physicsUpdate();
+    player.update();
 
     WorldObject.draw();
 }

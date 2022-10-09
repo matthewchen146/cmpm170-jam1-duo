@@ -40,6 +40,9 @@ class WorldObject {
 
     static reset() {
         WorldObject.objects = [];
+        for (let i = 0; i < WorldObject.drawLayers.length; i++) {
+            WorldObject.drawLayers[i] = [];
+        }
     }
 
     static update() {
@@ -51,7 +54,7 @@ class WorldObject {
             } else {
 
                 object.physicsUpdate();
-                
+                object.update();
 
                 
             }
@@ -69,7 +72,6 @@ class WorldObject {
     physicsUpdate() {
         this.velocity.add(vec(gravity).mul(this.gravityScale));
         this.pos.add(this.velocity);
-        this.update();
     }
 
     update() {
