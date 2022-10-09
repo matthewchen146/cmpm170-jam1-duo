@@ -13,7 +13,7 @@ class Bug extends WorldObject{
         let bugs = new Bug({
             color: 'red',
             box: vec(6,6),
-            pos: vec(Math.random()*(canvas.width-30)+15,rnd(20,50)),
+            pos: vec(Math.random()*(canvasWidth-30)+player.pos.x,rnd(20,50)),
             gravityScale: 0
 
         })
