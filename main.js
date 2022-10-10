@@ -3,7 +3,98 @@ title = "";
 description = `
 `;
 
-characters = [];
+characters = [
+// a - something
+`
+gggggg
+gggggg
+gggggg
+gggggg
+gggggg
+gggggg
+`,
+// b - frog tongue
+`
+  RR  
+ RRRR 
+RRRRRR
+RRRRRR
+ RRRR 
+  RR  
+`,
+// c - bug body
+`
+      
+ bbbb 
+bbbbbb
+bbbbbb
+ bbbb 
+b    b
+`,
+// d - wing open
+`
+ bbbb 
+b    b
+b    b
+b    b
+b    b
+ bbbb 
+`,
+// e - wing close
+`
+      
+      
+ bbbb 
+b    b
+ bbbb 
+      
+`,
+// f - frog body middle
+`
+gp  pg
+gggggg
+gggggg
+ggGGgg
+gGGGGg
+gGGGGg
+`,
+// g - frog body left
+`
+gp  gp
+gggggg
+gggggg
+gggGGg
+ggGGGg
+ggGGGg
+`,
+// h - frog legs middle
+`
+gg  gg
+gg  gg
+gg  gg
+ g  g 
+ g  g 
+      
+`,
+// i - frog legs left
+`
+ gg gg
+ gg gg
+ g  g  
+g  g  
+g  g  
+      
+`,
+// j - frog legs very left
+`
+    gg
+   gg 
+ggg   
+      
+      
+      
+`
+];
 
 options = {};
 
@@ -24,7 +115,15 @@ function update() {
         Bug.reset();
 
         // create player
-        player = new Frog({box: vec(6,6), color: 'green', gravityScale: 1, disableUpdating: true});
+        player = new Frog({
+            pos: vec(0, -10),
+            color: 'green', 
+            gravityScale: 1, 
+            disableUpdating: true
+        });
+
+        // set settings
+        waterLevel = 70;
     }
 
     if (!isCutsceneFinished) {
@@ -53,13 +152,26 @@ function update() {
         }
     }
 
-    // score = Ceiling.objects.length;
-    // console.log(Bug.objects.length);
-    // console.log(Ceiling.objects.length);
+    // draw water
+    color('blue');
+    let waterCanvasPos = getCanvasPos(vec(0,waterLevel));
+    rect(0, waterCanvasPos.y, canvasWidth, canvasHeight);
+    color('light_blue');
+    // water streaks
+    let streakCount = 6;
+    for (let i = 0; i <= streakCount; i++) {
+        let calc = i / streakCount;
+        box(canvasWidth * .5, waterCanvasPos.y + (i) * 2 + 2, (1 - calc * calc) * 30, 1);
+    }
+
+    color('black');
 
     // update player
     player.physicsUpdate();
     player.update();
 
     WorldObject.draw();
+
+    // drains
+    waterLevel -= .02;
 }

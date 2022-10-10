@@ -5,9 +5,35 @@ class Bug extends WorldObject{
 
     static objects = [];
     static nextSpawnX = 0;
+    static types = [
+        {
+            color: 'red',
+            score: 30,
+            speed: .7,
+            height: 30,
+            amplitude: 20
+        },
+        {
+            color: 'purple',
+            score: 20,
+            speed: .5,
+            height: 40,
+            amplitude: 20
+        },
+        {
+            color: 'blue',
+            score: 10,
+            speed: .2,
+            height: 55,
+            amplitude: 10
+        },
+    ];
 
     static states = {
-        IDLE: 0
+        IDLE: 0,
+        CAUGHT: 1,
+        CONSUMING: 2,
+        DEAD: 3
     }
 
     constructor(options = {}){
@@ -19,6 +45,12 @@ class Bug extends WorldObject{
 
         this.state = Bug.states.IDLE;
         this.seed = options.seed || 0;
+        this.speed = options.speed || this.seed * 1;
+        this.color = options.color || 'blue';
+
+        this.consumeStartPos = vec(0,0);
+
+        this.consumeTimestamp = 0;
     }
 
     static reset() {
@@ -27,13 +59,24 @@ class Bug extends WorldObject{
     }
 
     static spawnBug(){
-        let seed = random(Math.floor(Bug.nextSpawnX)); 
+        let seed = random(Math.floor(Bug.nextSpawnX));
+
+        let prob = seed;
+        let type;
+        if (prob < .5) {
+            type = Bug.types[2];
+        } else if (prob < .8) {
+            type = Bug.types[1];
+        } else {
+            type = Bug.types[0];
+        }
+
         let bug = new Bug({
-            color: 'red',
-            box: vec(6,6),
+            color: type.color,
+            score: type.score,
+            speed: type.speed,
             pos: vec(Bug.nextSpawnX, seed * 10),
             gravityScale: 0,
-            score: 10,
             seed
             // disableUpdating: true
         })
@@ -44,12 +87,41 @@ class Bug extends WorldObject{
         return bug;
     }
 
+    onCaught() {
+        this.state = Bug.states.CAUGHT;
+    }
+
+    onConsume() {
+        this.state = Bug.states.CONSUMING;
+        this.consumeTimestamp = Date.now();
+        this.consumeStartPos.set(this.pos);
+    }
+
     update() {
+        this.velocity.x = Math.sin((ticks + this.seed * 10) * .06 * this.seed);
         switch (this.state) {
             case Bug.states.IDLE:
-                this.velocity.set(vec(Math.sin((ticks + this.seed * 10) * .06 * this.seed), Math.sin((ticks + this.seed * 10) * .3 * this.seed)).mul(1))
+                this.velocity.y = Math.sin((ticks + this.seed * 10) * .3 * this.seed);
                 break;
-        
+            case Bug.states.CAUGHT:
+                if (this.velocity.y > -1) {
+                    this.velocity.y -= .1;
+                }
+                break;
+            case Bug.states.CONSUMING:
+                let progress = (Date.now() - this.consumeTimestamp) / 200;
+                if (progress > 1) {
+                    progress = 1;
+                    this.destroy();
+
+                    // consumed
+                    addScore(this.score, getCanvasPos(player.pos));
+                }
+                let diff = vec(this.consumeStartPos).sub(player.pos);
+                this.pos.set(vec(player.pos).add(diff.mul(1 - progress)));
+                break;
+            case Bug.states.DEAD:
+                break;
             default:
                 break;
         }
@@ -64,5 +136,16 @@ class Bug extends WorldObject{
         super.destroy();
     }
 
+    draw(canvasPos) {
+        color(this.color);
+        // wing flap
+        let choose = (Math.round(ticks * .5)) % 2;
+        let wing = (choose == 0 ? 'd' : 'e');
+        char(wing, canvasPos.x + 3, canvasPos.y - 3);
+        char(wing, canvasPos.x - 3, canvasPos.y - 3);
+        // body
+        char('c', canvasPos.x, canvasPos.y);
+        color('black');
+    }
     
 }

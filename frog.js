@@ -25,6 +25,7 @@ class Frog extends WorldObject {
         // this.reloadTimestamp = 0;
         // this.reloadDuration = 100;
         // this.reloadTongueTipPos = vec(0,0);
+        this.hasSwung = false;
         this.relSwingPos = vec(0,0);
         this.swingAngle = 0;
         this.angularVelocity = 0;
@@ -38,7 +39,7 @@ class Frog extends WorldObject {
     update() {
         
         // kill frog if too low
-        if (this.pos.y > 50) {
+        if (this.pos.y > waterLevel) {
             end();
             return;
         }
@@ -53,8 +54,7 @@ class Frog extends WorldObject {
             end();
             return;
         }
-
-
+        
         switch (this.state) {
             case Frog.states.FIRING:
                 if (input.isPressed) {
@@ -78,7 +78,7 @@ class Frog extends WorldObject {
                         }
                     }
                     let isCollidingBug = false;
-                    if (closestBug && !closestBug.isDestroyed && closestDistance < this.targetMargin) {
+                    if (closestBug && closestBug.state === Bug.states.IDLE && closestDistance < this.targetMargin) {
                         let diff = vec(this.tongueTipPos).sub(closestBug.pos);
                         this.tongueTipPos.sub(diff.normalize().mul(this.targetSuction));
                         
@@ -88,9 +88,8 @@ class Frog extends WorldObject {
 
                             // attached to bug
                             this.caughtBug = closestBug;
+                            this.caughtBug.onCaught();
 
-                            // console.log(this.caughtBug.isDestroyed)
-                            // addScore(10, getCanvasPos(closestBug.pos));
                         }
                     }
                     
@@ -99,34 +98,33 @@ class Frog extends WorldObject {
                     if (collision.isColliding.rect.blue || isCollidingBug) {
                         this.state = Frog.states.SWINGING;
 
-                        this.relSwingPos = vec(this.pos).sub(this.tongueTipPos);
+                        this.hasSwung = false;
+                        this.relSwingPos.set(this.pos)
+                        this.relSwingPos.sub(this.tongueTipPos);
+                        // this.rotatedPos.set(this.relSwingPos);
                         this.swingAngle = 0;
+
                         // calculate angular velocity = velocity / radius
                         let tangent = vec(this.relSwingPos.y, -this.relSwingPos.x).normalize();
-                        // let diff = vec(this.velocity).normalize().sub(tangent);
-                        // tangent.x *= 1 - diff.x;
-                        // tangent.y *= 1 - diff.y;
                         tangent.mul(this.velocity.length);
 
                         this.tongueLength = vec(this.tongueTipPos).sub(this.pos).length; 
                         this.angularVelocity = tangent.length / this.tongueLength;
                     }
                 } else {
+                    this.state = Frog.states.FALLING;
+                    this.isTongueTipVisible = false;
                     this.tongueTipPos.set(this.pos);
-                    // this.tongueTipPos.sub(vec(this.tongueTipPos).sub(this.pos).normalize().mul(5));
-                    if (this.tongueTipPos.distanceTo(this.pos) < 5) {
-                        this.state = Frog.states.FALLING;
-                        this.isTongueTipVisible = false;
-                    }
                 }
                 break;
             case Frog.states.SWINGING:
-                if (input.isPressed) {
-
-                    // if (this.caughtBug) {
-                    //     this.tongueTipPos.sub(vec(this.pos).sub(this.caughtBug.pos).normalize());
-                    //     this.relSwingPos = vec(this.pos).sub(this.tongueTipPos);
-                    // }
+                if (!this.hasSwung || input.isPressed) {
+                    this.hasSwung = true;
+                    if (this.caughtBug) {
+                        this.tongueTipPos.set(this.caughtBug.pos);
+                        this.pos.add(this.caughtBug.velocity);
+                        this.relSwingPos = vec(this.pos).sub(this.tongueTipPos);
+                    }
 
                     // calculate pendulum acceleration
                     let diff = vec(this.pos).sub(this.tongueTipPos);
@@ -144,14 +142,12 @@ class Frog extends WorldObject {
                         this.relSwingPos.x * Math.cos(this.swingAngle) - this.relSwingPos.y * Math.sin(this.swingAngle),
                         this.relSwingPos.y * Math.cos(this.swingAngle) + this.relSwingPos.x * Math.sin(this.swingAngle)
                     ));
-                    
 
                     // calculate tangent for velocity
                     let tangent = vec(this.rotatedPos.y, -this.rotatedPos.x).normalize();
                     let magnitude = this.angularVelocity * this.tongueLength;
                     tangent.mul(magnitude);
                     tangent.sub(this.rotatedPos.normalize().mul(this.tongueRetractSpeed));
-                    
 
                     // apply velocity
                     this.velocity.set(tangent);
@@ -163,10 +159,9 @@ class Frog extends WorldObject {
                     tangent.mul(magnitude);
                     this.velocity.set(tangent);
 
-                    // eat bug if bug
+                    // eat bug if bug. score is added in bug class
                     if (this.caughtBug) {
-                        addScore(this.caughtBug.score, getCanvasPos(this.pos));
-                        this.caughtBug.destroy();
+                        this.caughtBug.onConsume();
                         this.caughtBug = undefined;
                     }
                     
@@ -194,14 +189,42 @@ class Frog extends WorldObject {
 
     draw(canvasPos) {
 
+        // draw frog
+        if (Math.abs(this.velocity.x) < .5) {
+            char('f', canvasPos);
+            char('h', canvasPos.x, canvasPos.y + 5);
+        } else if (this.velocity.x > 0) {
+            char('g', canvasPos.x - 1, canvasPos.y);
+            if (this.velocity.x > 1.4) {
+                char('j', canvasPos.x - 5, canvasPos.y + 5);
+                char('j', canvasPos.x - 1, canvasPos.y + 5);
+            } else {
+                char('i', canvasPos.x - 2, canvasPos.y + 5);
+            }
+            
+        } else {
+            let option = {mirror: {x: -1, y: 1}};
+            char('g', canvasPos.x + 1, canvasPos.y, option);
+            if (this.velocity.x < -1.4) {
+                char('j', canvasPos.x + 5, canvasPos.y + 5, option);
+                char('j', canvasPos.x + 1, canvasPos.y + 5, option);
+            } else {
+                char('i', canvasPos.x + 2, canvasPos.y + 5, option);
+            }
+            }
+            
+
+
+        // drog tongue
         if (this.isTongueTipVisible) {
             let tongueCanvasPos = getCanvasPos(this.tongueTipPos);
             color('light_red');
-            box(tongueCanvasPos, vec(3,3));
             line(canvasPos, tongueCanvasPos, 2);
+            char('b', tongueCanvasPos);
+            // box(tongueCanvasPos, vec(3,3));
             color('black');
         }
 
-        super.draw(canvasPos);
+        // super.draw(canvasPos);
     }
 }

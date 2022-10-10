@@ -1,5 +1,5 @@
 
-let isCutsceneFinished = false;
+let isCutsceneFinished = true;
 
 let cutsceneTimestamp = 0;
 

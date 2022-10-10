@@ -3,6 +3,7 @@ let canvasWidth = 100;
 let canvasHeight = 100;
 let cameraPos = vec(0,0);
 let gravity = vec(0,.05);
+let waterLevel = 50;
 
 function getCanvasPos(pos) {
     return vec(pos).sub(cameraPos.x - canvasWidth * .5, cameraPos.y - canvasHeight * .5);
