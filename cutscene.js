@@ -24,20 +24,26 @@ function drawCutscene() {
             }
             break;
         case 'middle2':
+            if (ticks - cutsceneTimestamp == 5) {
+                
+                play('explosion');
+            }
             
             color("green");
             box(50,80,5,5);
             text('This is bug', 10,30);
             color("red");
             box(65,40,3,3);
-            console.log(ticks - cutsceneTimestamp)
-            if (ticks - cutsceneTimestamp >= 180) {
-                console.log("what?")
+            if (ticks - cutsceneTimestamp >= 180) {               
                 cutsceneTimestamp = ticks;
                 cutsceneState = 'middle3';
             }
             break;
         case 'middle3':
+            if (ticks - cutsceneTimestamp == 5) {
+                
+                play('explosion');
+            }
             
             color("green");
             box(50,80,5,5);
@@ -53,6 +59,10 @@ function drawCutscene() {
             }
             break;
         case 'middle4':
+            if (ticks - cutsceneTimestamp == 5) {
+                
+                play('explosion');
+            }
             
             color("green");
             box(50,80,5,5);
@@ -83,13 +93,24 @@ function drawCutscene() {
 
             color("green");
             box(50,80,5,5);
+            if (ticks - cutsceneTimestamp == 5) {
+                
+                play('coin');
+            }
+
+            
 
             if (ticks - cutsceneTimestamp >= 120) {
+                
                 cutsceneTimestamp = ticks;
                 cutsceneState = 'middle6';
             }
             break;
         case 'middle6':
+            if (ticks - cutsceneTimestamp == 5) {
+                
+                play('explosion');
+            }
         
             color("red");
             box(25,40,3,3);
