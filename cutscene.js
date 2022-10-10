@@ -1,5 +1,5 @@
 
-let isCutsceneFinished = true;
+let isCutsceneFinished = false;
 
 let cutsceneTimestamp = 0;
 
@@ -18,7 +18,7 @@ function drawCutscene() {
             text('Frog', 40,40);
             color("green");
             box(50,80,5,5);
-            if (ticks - cutsceneTimestamp >= 180) {
+            if (input.isJustPressed || ticks - cutsceneTimestamp >= 180) {
                 cutsceneTimestamp = ticks;
                 cutsceneState = 'middle2';
             }
@@ -34,7 +34,7 @@ function drawCutscene() {
             text('This is bug', 10,30);
             color("red");
             box(65,40,3,3);
-            if (ticks - cutsceneTimestamp >= 180) {               
+            if (input.isJustPressed || ticks - cutsceneTimestamp >= 180) {               
                 cutsceneTimestamp = ticks;
                 cutsceneState = 'middle3';
             }
@@ -53,7 +53,7 @@ function drawCutscene() {
 
             text('Frog eats bug', 10,30);
 
-            if (ticks - cutsceneTimestamp >= 180) {
+            if (input.isJustPressed || ticks - cutsceneTimestamp >= 180) {
                 cutsceneTimestamp = ticks;
                 cutsceneState = 'middle4';
             }
@@ -72,11 +72,11 @@ function drawCutscene() {
 
             text('Frog eats bug', 10,30);
 
-            text('[Left Click]', 5, 70);
+            text('[Press & Hold]', 5, 70);
 
             
 
-            if (ticks - cutsceneTimestamp >= 120) {
+            if (input.isJustPressed || ticks - cutsceneTimestamp >= 120) {
                 cutsceneTimestamp = ticks;
                 cutsceneState = 'middle5';
             }
@@ -100,7 +100,7 @@ function drawCutscene() {
 
             
 
-            if (ticks - cutsceneTimestamp >= 120) {
+            if (input.isJustPressed || ticks - cutsceneTimestamp >= 120) {
                 
                 cutsceneTimestamp = ticks;
                 cutsceneState = 'middle6';
@@ -149,7 +149,11 @@ function drawCutscene() {
             color("green");
             box(80,70,5,5);
 
-            if (ticks - cutsceneTimestamp >= 600) {
+            if (Math.floor(ticks * .2) % 2 == 0) {
+                text('Press to Start', 10, canvasHeight - 10);
+            }
+
+            if (input.isJustPressed) {
                 cutsceneTimestamp = ticks;
                 isCutsceneFinished = true;
             }

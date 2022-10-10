@@ -102,6 +102,13 @@ let player;
 let splashTimestamp;
 let cameraShakeFactor;
 
+let bgm = new Howl({
+    src: ['./song.wav'],
+    loop: true
+});
+
+bgm.play();
+
 function update() {
     if (!ticks) {
   
