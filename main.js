@@ -1,6 +1,6 @@
-title = "";
+title = "Hungry Swinging";
 
-description = `
+description = `Grapple Frog
 `;
 
 characters = [
