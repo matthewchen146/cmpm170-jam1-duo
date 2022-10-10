@@ -1,6 +1,6 @@
-title = "Hungry Swinging";
+title = "Grappling";
 
-description = `Grapple Frog
+description = `Hungry Frog
 `;
 
 characters = [
@@ -104,10 +104,9 @@ let cameraShakeFactor;
 
 let bgm = new Howl({
     src: ['./song.wav'],
-    loop: true
+    loop: true,
+    volume: .5
 });
-
-bgm.play();
 
 function update() {
     if (!ticks) {
@@ -192,6 +191,7 @@ function update() {
     }
     color('black');
 
+    // splash
     if (waterLevel - player.pos.y < 10 && Date.now() - splashTimestamp > 50) {
         let splash = new WorldObject({
             pos: vec(player.pos.x, waterLevel),

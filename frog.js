@@ -44,6 +44,7 @@ class Frog extends WorldObject {
 
     update() {
         
+
         // kill frog if too low
         if (this.pos.y > waterLevel) {
             play('explosion');
@@ -57,8 +58,12 @@ class Frog extends WorldObject {
             color('transparent');
             let bodyCollision = box(getCanvasPos(this.pos), vec(6,6));
             color('black');
-            if (bodyCollision.isColliding.rect.blue || this.life <= 0) {
+            if (bodyCollision.isColliding.rect.blue || this.life <= 0 || this.pos.y < ceilingLevel) {
                 play('explosion');
+                if (this.pos.y < ceilingLevel) {
+                    this.pos.y = ceilingLevel;
+                    this.velocity.y = 0;
+                }
                 cameraShakeFactor = 5;
                 this.state = Frog.states.DYING;
                 this.isTongueTipVisible = false;
@@ -108,13 +113,17 @@ class Frog extends WorldObject {
                     }
                     
 
-                    // check if tongue tip colliding ceiling
+                    // check if tongue tip colliding ceiling or bug
                     if (collision.isColliding.rect.blue || isCollidingBug) {
                         this.state = Frog.states.SWINGING;
 
                         this.hasSwung = false;
                         this.relSwingPos.set(this.pos)
                         this.relSwingPos.sub(this.tongueTipPos);
+                        // if (this.relSwingPos.length < 20) {
+                        //     this.relSwingPos.normalize().mul(20);
+                        //     this.pos.add(this.relSwingPos);
+                        // }
                         // this.rotatedPos.set(this.relSwingPos);
                         this.swingAngle = 0;
 
@@ -122,7 +131,7 @@ class Frog extends WorldObject {
                         let tangent = vec(this.relSwingPos.y, -this.relSwingPos.x).normalize();
                         tangent.mul(this.velocity.length);
 
-                        this.tongueLength = vec(this.tongueTipPos).sub(this.pos).length; 
+                        this.tongueLength = this.relSwingPos.length; 
                         this.angularVelocity = tangent.length / this.tongueLength;
                     }
                 } else {
@@ -143,7 +152,7 @@ class Frog extends WorldObject {
                     // calculate pendulum acceleration
                     let diff = vec(this.pos).sub(this.tongueTipPos);
                     this.tongueLength = diff.length;
-                    let radius = this.tongueLength;
+                    let radius = Math.max(this.tongueLength, 6);
                     let pendulumAngle = Math.atan(diff.x / diff.y);
                     let angularForce = -gravity.y * (Math.sin(pendulumAngle) / radius) * this.gravityScale;
                     this.angularVelocity += angularForce;
@@ -161,7 +170,13 @@ class Frog extends WorldObject {
                     let tangent = vec(this.rotatedPos.y, -this.rotatedPos.x).normalize();
                     let magnitude = this.angularVelocity * this.tongueLength;
                     tangent.mul(magnitude);
-                    tangent.sub(this.rotatedPos.normalize().mul(this.tongueRetractSpeed));
+                    // keep tonguelength around 12
+                    if (this.tongueLength > 12) {
+                        tangent.sub(this.rotatedPos.normalize().mul(this.tongueRetractSpeed));
+                    } else {
+                        tangent.add(this.rotatedPos.normalize().mul(this.tongueRetractSpeed));
+                    }
+                    
 
                     // apply velocity
                     this.velocity.set(tangent);
@@ -194,6 +209,10 @@ class Frog extends WorldObject {
                 break;
             case Frog.states.DYING:
                 this.charRotation += .2;
+                if (this.pos.y < ceilingLevel - 4) {
+                    this.pos.y = ceilingLevel;
+                    this.velocity.y = 0;
+                }
                 break;
             default:
                 break;

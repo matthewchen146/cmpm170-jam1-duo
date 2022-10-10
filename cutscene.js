@@ -156,6 +156,7 @@ function drawCutscene() {
             if (input.isJustPressed) {
                 cutsceneTimestamp = ticks;
                 isCutsceneFinished = true;
+                bgm.play();
             }
             break;
         default:

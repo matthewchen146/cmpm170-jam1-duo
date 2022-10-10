@@ -49,7 +49,7 @@ class Ceiling extends WorldObject{
         let x = Math.round((player.pos.x + this.index * 6 - canvasWidth * .5) / 6) * 6;
         let randomOffsetY = random(x) * 4;
         this.pos.x = x;
-        this.pos.y = -30 - canvasHeight * .5 + randomOffsetY * .5;
+        this.pos.y = ceilingLevel - canvasHeight * .5 + randomOffsetY * .5;
         this.box.y = canvasHeight + randomOffsetY;
     }
 
