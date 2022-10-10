@@ -116,6 +116,8 @@ class Bug extends WorldObject{
 
                     // consumed
                     addScore(this.score, getCanvasPos(player.pos));
+                    player.life = Math.min(player.life + this.score, 100);
+                    play('coin');
                 }
                 let diff = vec(this.consumeStartPos).sub(player.pos);
                 this.pos.set(vec(player.pos).add(diff.mul(1 - progress)));

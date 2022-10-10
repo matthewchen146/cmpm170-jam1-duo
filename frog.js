@@ -33,28 +33,42 @@ class Frog extends WorldObject {
         this.tongueLength = 0;
         this.furthestX = 0;
 
+        this.charRotation = 0;
+
         this.caughtBug;
+
+        this.life = 100;
+
+        this.nextDistTarget = 200;
     }
 
     update() {
         
         // kill frog if too low
         if (this.pos.y > waterLevel) {
+            play('explosion');
             end();
             return;
         }
 
         // create frog collider
         // kill frog if hit ceiling
-        color('transparent');
-        let bodyCollision = box(getCanvasPos(this.pos), vec(6,6));
-        color('black');
-        if (bodyCollision.isColliding.rect.blue) {
-            play('explosion');
-            end();
-            return;
+        if (this.state !== Frog.states.DYING) {
+            color('transparent');
+            let bodyCollision = box(getCanvasPos(this.pos), vec(6,6));
+            color('black');
+            if (bodyCollision.isColliding.rect.blue || this.life <= 0) {
+                play('explosion');
+                cameraShakeFactor = 5;
+                this.state = Frog.states.DYING;
+                this.isTongueTipVisible = false;
+                // this.velocity.y *= -1;
+                // end();
+                return;
+            }
         }
         
+
         switch (this.state) {
             case Frog.states.FIRING:
                 if (input.isPressed) {
@@ -153,6 +167,7 @@ class Frog extends WorldObject {
                     this.velocity.set(tangent);
                     
                 } else {
+                    play('click');
                     // same as above
                     let tangent = vec(this.rotatedPos.y, -this.rotatedPos.x).normalize();
                     let magnitude = this.angularVelocity * this.tongueLength;
@@ -174,44 +189,60 @@ class Frog extends WorldObject {
                     this.state = Frog.states.FIRING;
                     this.isTongueTipVisible = true;
                     this.tongueTipPos.set(this.pos);
+                    play('select');
                 }
+                break;
+            case Frog.states.DYING:
+                this.charRotation += .2;
                 break;
             default:
                 break;
         }
+
+        // drains
+        this.life -= .04 * difficulty;
 
 
         // set stats
         if (this.pos.x > this.furthestX) {
             this.furthestX = this.pos.x;
         }
+
+        // add dist points
+        if (this.pos.x > this.nextDistTarget) {
+            this.nextDistTarget += 200;
+            addScore(5, getCanvasPos(this.pos));
+            play('synth', {freq: 400 + this.nextDistTarget / 20, volume: .4})
+        }
     }
 
     draw(canvasPos) {
-
+        let charOptions = {
+            rotation: Math.floor(this.charRotation)
+        }
         // draw frog
         if (Math.abs(this.velocity.x) < .5) {
-            char('f', canvasPos);
-            char('h', canvasPos.x, canvasPos.y + 5);
+            char('f', canvasPos, charOptions);
+            char('h', canvasPos.x, canvasPos.y + 5, charOptions);
         } else if (this.velocity.x > 0) {
-            char('g', canvasPos.x - 1, canvasPos.y);
+            char('g', canvasPos.x - 1, canvasPos.y, charOptions);
             if (this.velocity.x > 1.4) {
-                char('j', canvasPos.x - 5, canvasPos.y + 5);
-                char('j', canvasPos.x - 1, canvasPos.y + 5);
+                char('j', canvasPos.x - 5, canvasPos.y + 5, charOptions);
+                char('j', canvasPos.x - 1, canvasPos.y + 5, charOptions);
             } else {
-                char('i', canvasPos.x - 2, canvasPos.y + 5);
+                char('i', canvasPos.x - 2, canvasPos.y + 5, charOptions);
             }
             
         } else {
-            let option = {mirror: {x: -1, y: 1}};
-            char('g', canvasPos.x + 1, canvasPos.y, option);
+            charOptions.mirror = {x: -1, y: 1};
+            char('g', canvasPos.x + 1, canvasPos.y, charOptions);
             if (this.velocity.x < -1.4) {
-                char('j', canvasPos.x + 5, canvasPos.y + 5, option);
-                char('j', canvasPos.x + 1, canvasPos.y + 5, option);
+                char('j', canvasPos.x + 5, canvasPos.y + 5, charOptions);
+                char('j', canvasPos.x + 1, canvasPos.y + 5, charOptions);
             } else {
-                char('i', canvasPos.x + 2, canvasPos.y + 5, option);
+                char('i', canvasPos.x + 2, canvasPos.y + 5, charOptions);
             }
-            }
+        }
             
 
 
