@@ -29,9 +29,6 @@ class Ceiling extends WorldObject{
     }
 
     static spawnCeiling() {
-        // console.log('spawning ceilling at ',x)
-        // // let x = Ceiling.objects.length > 0 ? Ceiling.objects[Ceiling.objects.length - 1].pos.x + 6 : -Math.round(canvasWidth / 12) * 6;
-        // let randomOffsetY = random(x) * 4;
 
         let ceiling = new Ceiling({
             color: 'blue',
