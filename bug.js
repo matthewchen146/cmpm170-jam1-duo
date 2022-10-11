@@ -75,7 +75,9 @@ class Bug extends WorldObject{
             color: type.color,
             score: type.score,
             speed: type.speed,
-            pos: vec(Bug.nextSpawnX, seed * 10),
+            pos: vec(
+                Bug.nextSpawnX, 
+                ceilingLevel + (waterLevel - ceilingLevel) * .5 + (seed * (waterLevel - ceilingLevel) - (waterLevel - ceilingLevel)) * .7),
             gravityScale: 0,
             seed
             // disableUpdating: true
@@ -102,6 +104,12 @@ class Bug extends WorldObject{
         switch (this.state) {
             case Bug.states.IDLE:
                 this.velocity.y = Math.sin((ticks + this.seed * 10) * .3 * this.seed);
+                if (this.pos.y - ceilingLevel < 12) {
+                    this.velocity.y += 2;
+                }
+                if (waterLevel - this.pos.y < 12) {
+                    this.velocity.y -= 2;
+                }
                 break;
             case Bug.states.CAUGHT:
                 if (this.velocity.y > -1) {

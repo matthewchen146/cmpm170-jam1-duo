@@ -138,6 +138,7 @@ function update() {
         waterLevel = 70;
     }
 
+
     if (!isCutsceneFinished) {
         drawCutscene();
         return;
@@ -212,7 +213,7 @@ function update() {
     }
 
     // drains
-    waterLevel -= .02;
+    // waterLevel -= .02;
 
 
     // stats

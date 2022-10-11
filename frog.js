@@ -120,11 +120,13 @@ class Frog extends WorldObject {
                         this.hasSwung = false;
                         this.relSwingPos.set(this.pos)
                         this.relSwingPos.sub(this.tongueTipPos);
-                        // if (this.relSwingPos.length < 20) {
-                        //     this.relSwingPos.normalize().mul(20);
-                        //     this.pos.add(this.relSwingPos);
-                        // }
-                        // this.rotatedPos.set(this.relSwingPos);
+
+                        let distDiff = this.relSwingPos.length - 6;
+                        if (distDiff < 0) {
+                            this.pos.add(vec(this.relSwingPos).normalize().mul(-distDiff))
+                            this.relSwingPos.set(this.pos).sub(this.tongueTipPos);
+                        }
+                        
                         this.swingAngle = 0;
 
                         // calculate angular velocity = velocity / radius
@@ -132,6 +134,7 @@ class Frog extends WorldObject {
                         tangent.mul(this.velocity.length);
 
                         this.tongueLength = this.relSwingPos.length; 
+                        // if (isCollidingBug) console.log('tongueLEngth on latch bug', this.tongueLength);
                         this.angularVelocity = tangent.length / this.tongueLength;
                     }
                 } else {
