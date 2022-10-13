@@ -11,6 +11,7 @@ class Frog extends WorldObject {
     }
 
     constructor(options = {}) {
+        options.drawLayer = 1;
         super(options);
         this.state = Frog.states.FALLING
 
@@ -22,9 +23,6 @@ class Frog extends WorldObject {
         this.tongueTipPos = vec(this.pos);
         this.isTongueTipVisible = false;
 
-        // this.reloadTimestamp = 0;
-        // this.reloadDuration = 100;
-        // this.reloadTongueTipPos = vec(0,0);
         this.hasSwung = false;
         this.relSwingPos = vec(0,0);
         this.swingAngle = 0;
@@ -87,17 +85,31 @@ class Frog extends WorldObject {
                     color('black');
 
                     // check for bugs too
+                    let isCollidingBug = false;
+
                     let closestBug;
                     let closestDistance = 0;
                     for (let bug of Bug.objects) {
+                        if (bug.state !== Bug.states.IDLE) {
+                            continue;
+                        }
                         let distance = bug.pos.distanceTo(this.tongueTipPos);
                         if (!closestBug || distance < closestDistance) {
                             closestBug = bug;
                             closestDistance = distance;
                         }
                     }
-                    let isCollidingBug = false;
-                    if (closestBug && closestBug.state === Bug.states.IDLE && closestDistance < this.targetMargin) {
+
+                    if (collision.isColliding.char.c && closestBug) {
+                        isCollidingBug = true;
+                        this.tongueTipPos.set(closestBug.pos);
+
+                        // attached to bug
+                        this.caughtBug = closestBug;
+                        this.caughtBug.onCaught();
+                    }
+
+                    if (!this.caughtBug && closestBug && closestBug.state === Bug.states.IDLE && closestDistance < this.targetMargin) {
                         let diff = vec(this.tongueTipPos).sub(closestBug.pos);
                         this.tongueTipPos.sub(diff.normalize().mul(this.targetSuction));
                         

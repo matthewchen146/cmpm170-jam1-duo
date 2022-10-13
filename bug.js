@@ -36,7 +36,8 @@ class Bug extends WorldObject{
         DEAD: 3
     }
 
-    constructor(options = {}){
+    constructor(options = {}) {
+        options.drawLayer = 0
         super(options)
         this.startPos = vec(this.pos);
         this.index = Bug.objects.length - 1;

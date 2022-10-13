@@ -175,9 +175,12 @@ function update() {
 
     // update player
     player.physicsUpdate();
-    player.update();
 
     WorldObject.draw();
+
+    player.update();
+
+    // player.draw(getCanvasPos(player.pos));
 
     // draw water
     color('blue');
@@ -196,7 +199,8 @@ function update() {
     if (waterLevel - player.pos.y < 10 && Date.now() - splashTimestamp > 50) {
         let splash = new WorldObject({
             pos: vec(player.pos.x, waterLevel),
-            gravityScale: 0
+            gravityScale: 0,
+            drawLayer: 2
         })
         splash.scale = player.velocity.length;
         splash.update = function() {
