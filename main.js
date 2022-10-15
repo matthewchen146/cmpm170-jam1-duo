@@ -96,17 +96,27 @@ ggg
 `
 ];
 
-options = {};
+options = {
+    isReplayEnabled: true
+};
 
 let player;
 let splashTimestamp;
 let cameraShakeFactor;
 
+let bgmVolume = .5;
 let bgm = new Howl({
     src: ['./song.wav'],
     loop: true,
-    volume: .5
+    volume: bgmVolume
 });
+
+window.addEventListener('focus', (e) => {
+    bgm.volume(bgmVolume);
+})
+window.addEventListener('blur', (e) => {
+    bgm.volume(0);
+})
 
 function update() {
     if (!ticks) {

@@ -37,7 +37,7 @@ class Bug extends WorldObject{
     }
 
     constructor(options = {}) {
-        options.drawLayer = 0
+        options.drawLayer = 1
         super(options)
         this.startPos = vec(this.pos);
         this.index = Bug.objects.length - 1;

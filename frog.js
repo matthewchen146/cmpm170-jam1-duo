@@ -15,7 +15,7 @@ class Frog extends WorldObject {
         super(options);
         this.state = Frog.states.FALLING
 
-        this.targetMargin = 10;
+        this.targetMargin = 15;
         this.targetSuction = 3;
         this.tongueSpeed = 5;
         this.tongueRetractSpeed = .1;
@@ -65,8 +65,6 @@ class Frog extends WorldObject {
                 cameraShakeFactor = 5;
                 this.state = Frog.states.DYING;
                 this.isTongueTipVisible = false;
-                // this.velocity.y *= -1;
-                // end();
                 return;
             }
         }
@@ -87,9 +85,11 @@ class Frog extends WorldObject {
                     // check for bugs too
                     let isCollidingBug = false;
 
+                    // get closest bug to tongue tip
                     let closestBug;
                     let closestDistance = 0;
                     for (let bug of Bug.objects) {
+                        // ignore non idle bugs
                         if (bug.state !== Bug.states.IDLE) {
                             continue;
                         }
@@ -100,20 +100,8 @@ class Frog extends WorldObject {
                         }
                     }
 
-                    if (collision.isColliding.char.c && closestBug) {
-                        isCollidingBug = true;
-                        this.tongueTipPos.set(closestBug.pos);
-
-                        // attached to bug
-                        this.caughtBug = closestBug;
-                        this.caughtBug.onCaught();
-                    }
-
-                    if (!this.caughtBug && closestBug && closestBug.state === Bug.states.IDLE && closestDistance < this.targetMargin) {
-                        let diff = vec(this.tongueTipPos).sub(closestBug.pos);
-                        this.tongueTipPos.sub(diff.normalize().mul(this.targetSuction));
-                        
-                        if (closestBug.pos.distanceTo(this.tongueTipPos) < 6) {
+                    if (!this.caughtBug && closestBug) {
+                        if (closestDistance < 6) {
                             isCollidingBug = true;
                             this.tongueTipPos.set(closestBug.pos);
 
@@ -121,9 +109,13 @@ class Frog extends WorldObject {
                             this.caughtBug = closestBug;
                             this.caughtBug.onCaught();
 
+                        } else if (closestDistance < this.targetMargin) {
+
+                            // if bug distance is close enough but not touching, move tip toward bug
+                            let diff = vec(this.tongueTipPos).sub(closestBug.pos);
+                            this.tongueTipPos.sub(diff.normalize().mul(this.targetSuction));
                         }
-                    }
-                    
+                    }                    
 
                     // check if tongue tip colliding ceiling or bug
                     if (collision.isColliding.rect.blue || isCollidingBug) {
